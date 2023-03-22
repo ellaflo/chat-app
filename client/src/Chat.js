@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import React, { useState, useEffect } from 'react';
 import './Chat.css';
 
 function Chat() {
@@ -7,7 +7,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
 
   // Connecting to server
-  const socket = io('http://localhost:4000');
+  const socket = io('http://localhost:5001', { transports: ['websocket'] });
 
   useEffect(() => {
     // Event Listener defined to recieve messages from the server 
@@ -22,8 +22,11 @@ function Chat() {
   }, [socket]);
 
   const sendMessage = (text) => {
-    socket.emit('message', { text });
-  };
+    const message = { text: text };
+    socket.emit('message', message);
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };  
+
 
   return (
     <div className="chat">
@@ -47,3 +50,4 @@ function Chat() {
 }
 
 export default Chat;
+

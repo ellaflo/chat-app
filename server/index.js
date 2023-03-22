@@ -9,17 +9,24 @@ const cors = require('cors');
 app.use(express.json());
 app.use(cors());
 
-app.get('/messages', (req, res) => {
-  // Code to retrieve messages
-});
-
-app.post('/messages', (req, res) => {
-  // Code to add a new message
-});
-
 // Server instance and listen for incoming requests
 const server = http.createServer(app);
-const port = process.env.PORT || 4000;
+const io = socketIo(server); // Create a new instance of socket.io and pass in the http server object
+
+const port = process.env.PORT || 5001;
+
+io.on('connection', (socket) => {
+  console.log(`New client connected: ${socket.id}`);
+
+  socket.on('message', (message) => {
+    console.log(`Received message from ${socket.id}: ${message}`);
+    io.emit('message', message);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
 
 server.listen(port, () => {
   console.log(`Server running on port ${port}`);
