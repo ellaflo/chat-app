@@ -1,32 +1,30 @@
-import io from 'socket.io-client';
 import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 import './Chat.css';
 
 function Chat() {
-  // Stores the message recieved from the server
   const [messages, setMessages] = useState([]);
-
-  // Connecting to server
-  const socket = io('http://localhost:5001', { transports: ['websocket'] });
+  const [room, setRoom] = useState('general');
+  const socket = io('http://localhost:5001');
 
   useEffect(() => {
-    // Event Listener defined to recieve messages from the server 
+    socket.on('connect', () => {
+      // Join the room
+      socket.emit('join', room);
+    });
+
     socket.on('message', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    // Return cleanup function to remove event listener
     return () => {
       socket.off('message');
     };
-  }, [socket]);
+  }, [socket, room]);
 
   const sendMessage = (text) => {
-    const message = { text: text };
-    socket.emit('message', message);
-    setMessages((prevMessages) => [...prevMessages, message]);
-  };  
-
+    socket.emit('message', { room, text });
+  };
 
   return (
     <div className="chat">
@@ -50,4 +48,3 @@ function Chat() {
 }
 
 export default Chat;
-

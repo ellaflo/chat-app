@@ -18,6 +18,21 @@ const port = process.env.PORT || 5001;
 io.on('connection', (socket) => {
   console.log(`New client connected: ${socket.id}`);
 
+  // Listen for the 'join' event to join a room
+  socket.on('join', (room) => {
+    socket.join(room);
+    console.log(`Client ${socket.id} joined room ${room}`);
+  });
+
+  // Listen for the 'message' event to send a message to a room
+  socket.on('message', (data) => {
+    // Get the room from the message data
+    const room = data.room;
+
+    // Send the message to the room
+    io.to(room).emit('message', data);
+  });
+
   socket.on('message', (message) => {
     console.log(`Received message from ${socket.id}: ${message}`);
     io.emit('message', message);
