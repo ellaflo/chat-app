@@ -15,8 +15,14 @@ const io = socketIo(server); // Create a new instance of socket.io and pass in t
 
 const port = process.env.PORT || 5001;
 
+// Keep track of all connected sockets
+let sockets = [];
+
 io.on('connection', (socket) => {
   console.log(`New client connected: ${socket.id}`);
+
+  // Add the socket to the array of connected sockets
+  sockets.push(socket);
 
   // Listen for the 'join' event to join a room
   socket.on('join', (room) => {
@@ -33,13 +39,11 @@ io.on('connection', (socket) => {
     io.to(room).emit('message', data);
   });
 
-  socket.on('message', (message) => {
-    console.log(`Received message from ${socket.id}: ${message}`);
-    io.emit('message', message);
-  });
-
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
+
+    // Remove the socket from the array of connected sockets
+    sockets = sockets.filter((s) => s.id !== socket.id);
   });
 });
 

@@ -14,6 +14,7 @@ function Chat() {
     });
 
     socket.on('message', (message) => {
+      console.log('Received message:', message); // Add this line for debugging
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
@@ -23,11 +24,21 @@ function Chat() {
   }, [socket, room]);
 
   const sendMessage = (text) => {
+    console.log('sendMessage:', text); // Add this line for debugging
     socket.emit('message', { room, text });
+  };
+
+  const handleRoomChange = (event) => {
+    setRoom(event.target.value);
   };
 
   return (
     <div className="chat">
+      <select value={room} onChange={handleRoomChange}>
+        <option value="general">General</option>
+        <option value="tech">Tech</option>
+        <option value="random">Random</option>
+      </select>
       <ul>
         {messages.map((message, index) => (
           <li key={index}>{message.text}</li>
@@ -45,6 +56,7 @@ function Chat() {
       </form>
     </div>
   );
+  
 }
 
 export default Chat;
